@@ -72,10 +72,12 @@ func main() {
 		var err error
 		username = defaultUsername
 		if idToken != "" && clientId != "" && tenantId != "" {
+			.Debug("Using OIDC authentication flow")
+			
 			var aadToken string
 			aadToken, err = azureutil.GetAADAccessTokenViaClientAssertion(context.Background(), tenantId, clientId, idToken, authorityHost)
 			if err != nil {
-				logrus.Fatal(err)
+				.Fatal(err)
 			}
 			var p string
 			p, err = getPublicUrl(aadToken, registry, subscriptionId)
@@ -89,6 +91,8 @@ func main() {
 				logrus.Fatal(err)
 			}
 		} else {
+			logrus.Debug("Using traditional Azure AD authentication flow")
+			
 			password, publicUrl, err = getAuth(clientId, clientSecret, clientCert, tenantId, subscriptionId, registry)
 			if err != nil {
 				logrus.Fatal(err)
