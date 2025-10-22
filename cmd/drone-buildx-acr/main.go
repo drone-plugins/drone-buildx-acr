@@ -55,7 +55,7 @@ func main() {
 		clientSecret   = getenv("CLIENT_SECRET")
 		clientCert     = getenv("CLIENT_CERTIFICATE")
 		tenantId       = getenv("TENANT_ID", "AZURE_TENANT_ID", "PLUGIN_TENANT_ID")
-		subscriptionId = getenv("SUBSCRIPTION_ID")
+		subscriptionId = getenv("SUBSCRIPTION_ID", "PLUGIN_SUBSCRIPTION_ID", "AZURE_SUBSCRIPTION_ID")
 		publicUrl      = getenv("DAEMON_REGISTRY")
 		authorityHost  = getenv("AZURE_AUTHORITY_HOST")
 		idToken        = getenv("PLUGIN_OIDC_TOKEN_ID")
