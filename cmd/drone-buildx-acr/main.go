@@ -52,11 +52,11 @@ func main() {
 
 		// Service principal credentials
 		clientId       = getenv("CLIENT_ID", "AZURE_CLIENT_ID", "AZURE_APP_ID", "PLUGIN_CLIENT_ID")
-		clientSecret   = getenv("CLIENT_SECRET")
-		clientCert     = getenv("CLIENT_CERTIFICATE")
+		clientSecret   = getenv("CLIENT_SECRET", "PLUGIN_CLIENT_SECRET")
+		clientCert     = getenv("CLIENT_CERTIFICATE", "PLUGIN_CLIENT_CERTIFICATE")
 		tenantId       = getenv("TENANT_ID", "AZURE_TENANT_ID", "PLUGIN_TENANT_ID")
-		subscriptionId = getenv("SUBSCRIPTION_ID", "PLUGIN_SUBSCRIPTION_ID", "AZURE_SUBSCRIPTION_ID")
-		publicUrl      = getenv("DAEMON_REGISTRY")
+		subscriptionId = getenv("SUBSCRIPTION_ID", "PLUGIN_SUBSCRIPTION_ID")
+		publicUrl      = getenv("DAEMON_REGISTRY", "PLUGIN_DAEMON_REGISTRY")
 		authorityHost  = getenv("AZURE_AUTHORITY_HOST", "PLUGIN_AZURE_AUTHORITY_HOST")
 		idToken        = getenv("PLUGIN_OIDC_TOKEN_ID")
 	)
@@ -72,12 +72,12 @@ func main() {
 		var err error
 		username = defaultUsername
 		if idToken != "" && clientId != "" && tenantId != "" {
-			.Debug("Using OIDC authentication flow")
+			logrus.Debug("Using OIDC authentication flow")
 			
 			var aadToken string
 			aadToken, err = azureutil.GetAADAccessTokenViaClientAssertion(context.Background(), tenantId, clientId, idToken, authorityHost)
 			if err != nil {
-				.Fatal(err)
+				logrus.Fatal(err)
 			}
 			var p string
 			p, err = getPublicUrl(aadToken, registry, subscriptionId)
