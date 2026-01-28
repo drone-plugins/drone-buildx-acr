@@ -59,7 +59,7 @@ pipeline:
                   identifier: BuildAndPushDockerRegistry
                   spec:
                     connectorRef: dock_con_ebt
-                    repo: plugins/buildx-acr
+                    repo: ebtasamfaridy/buildx-acr
                     tags:
                       - linux-amd64
                     caching: false
