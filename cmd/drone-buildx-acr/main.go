@@ -11,6 +11,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/joho/godotenv"
@@ -123,64 +124,71 @@ func main() {
 }
 
 func getAuth(clientId, clientSecret, clientCert, tenantId, subscriptionId, registry string) (string, string, error) {
-	// Verify inputs
-	if tenantId == "" {
-		return "", "", fmt.Errorf("tenantId cannot be empty for AAD authentication")
-	}
-	if clientId == "" {
-		return "", "", fmt.Errorf("clientId cannot be empty for AAD authentication")
-	}
+	var cred azcore.TokenCredential
+	var err error
+
 	if clientSecret == "" && clientCert == "" {
-		return "", "", fmt.Errorf("one of client secret or client cert should be defined")
-	}
-
-	// Setup cert
-	if clientCert != "" {
-		err := setupACRCert(clientCert, acrCertPath)
-		if err != nil {
-			errors.Wrap(err, "failed to push setup cert file")
+		if tenantId == "" {
+			tenantId = getenv("AZURE_TENANT_ID", "TENANT_ID")
 		}
+		opts := &azidentity.DefaultAzureCredentialOptions{}
+		if tenantId != "" {
+			opts.TenantID = tenantId
+		}
+		cred, err = azidentity.NewDefaultAzureCredential(opts)
+		if err != nil {
+			return "", "", errors.Wrap(err, "failed to get credentials")
+		}
+	} else {
+		if tenantId == "" {
+			return "", "", fmt.Errorf("tenantId cannot be empty for AAD authentication")
+		}
+		if clientId == "" {
+			return "", "", fmt.Errorf("clientId cannot be empty for AAD authentication")
+		}
+
+		if clientCert != "" {
+			err := setupACRCert(clientCert, acrCertPath)
+			if err != nil {
+				return "", "", errors.Wrap(err, "failed to setup cert file")
+			}
+		}
+
+		if err := os.Setenv(clientIdEnv, clientId); err != nil {
+			return "", "", errors.Wrap(err, "failed to set env variable client Id")
+		}
+		if err := os.Setenv(clientSecretKeyEnv, clientSecret); err != nil {
+			return "", "", errors.Wrap(err, "failed to set env variable client secret")
+		}
+		if err := os.Setenv(tenantKeyEnv, tenantId); err != nil {
+			return "", "", errors.Wrap(err, "failed to set env variable tenant Id")
+		}
+		if err := os.Setenv(certPathEnv, acrCertPath); err != nil {
+			return "", "", errors.Wrap(err, "failed to set env variable cert path")
+		}
+		cred, err = azidentity.NewEnvironmentCredential(nil)
+		if err != nil {
+			return "", "", errors.Wrap(err, "failed to get env credentials from azure")
+		}
+		os.Unsetenv(clientIdEnv)
+		os.Unsetenv(clientSecretKeyEnv)
+		os.Unsetenv(tenantKeyEnv)
+		os.Unsetenv(certPathEnv)
 	}
 
-	// Get AZ env
-	if err := os.Setenv(clientIdEnv, clientId); err != nil {
-		return "", "", errors.Wrap(err, "failed to set env variable client Id")
-	}
-	if err := os.Setenv(clientSecretKeyEnv, clientSecret); err != nil {
-		return "", "", errors.Wrap(err, "failed to set env variable client secret")
-	}
-	if err := os.Setenv(tenantKeyEnv, tenantId); err != nil {
-		return "", "", errors.Wrap(err, "failed to set env variable tenant Id")
-	}
-	if err := os.Setenv(certPathEnv, acrCertPath); err != nil {
-		return "", "", errors.Wrap(err, "failed to set env variable cert path")
-	}
-	env, err := azidentity.NewEnvironmentCredential(nil)
-	if err != nil {
-		return "", "", errors.Wrap(err, "failed to get env credentials from azure")
-	}
-	os.Unsetenv(clientIdEnv)
-	os.Unsetenv(clientSecretKeyEnv)
-	os.Unsetenv(tenantKeyEnv)
-	os.Unsetenv(certPathEnv)
-
-	// Fetch AAD token
 	policy := policy.TokenRequestOptions{
 		Scopes: []string{"https://management.azure.com/.default"},
 	}
-	aadToken, err := env.GetToken(context.Background(), policy)
+	aadToken, err := cred.GetToken(context.Background(), policy)
 	if err != nil {
 		return "", "", errors.Wrap(err, "failed to fetch access token")
 	}
 
-	// Get public URL for artifacts
 	publicUrl, err := getPublicUrl(aadToken.Token, registry, subscriptionId)
 	if err != nil {
-		// execution should not fail because of this error
 		fmt.Fprintf(os.Stderr, "failed to get public url with error: %s\n", err)
 	}
 
-	// Fetch token
 	ACRToken, err := fetchACRToken(tenantId, aadToken.Token, registry)
 	if err != nil {
 		return "", "", errors.Wrap(err, "failed to fetch ACR token")
