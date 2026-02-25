@@ -18,8 +18,6 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dnaeon/go-vcr v1.2.0 h1:zHCHvJYTMh1N7xnV7zf1m1GPBF9Ad0Jk/whtQ1663qI=
 github.com/dnaeon/go-vcr v1.2.0/go.mod h1:R4UdLID7HZT3taECzJs4YgbbH6PIGXB6W/sc5OLb6RQ=
-github.com/drone-plugins/drone-buildx v1.3.12 h1:8LBwOTq2uIw68O4xzEIrCc0KnM78zqu6EnjduyDBEX8=
-github.com/drone-plugins/drone-buildx v1.3.12/go.mod h1:qn5sY9Wm5OMuPuIYy0mM1Lu5j3SP1VqlBmiO+lcHB2I=
 github.com/drone-plugins/drone-buildx v1.3.14 h1:jfGeeynIgwzJiOp7LBbyc1RhPpu8ihrSIr23BBBEmoI=
 github.com/drone-plugins/drone-buildx v1.3.14/go.mod h1:W52bvETFL3iFdSkqq/EfuWCKRynBAU6I0fMLDjyrNb8=
 github.com/drone-plugins/drone-plugin-lib v0.4.2 h1:EiJ3Kco6ypP5noBQqVt1bBbuO1eUAumtPvLTX/NVAYg=
