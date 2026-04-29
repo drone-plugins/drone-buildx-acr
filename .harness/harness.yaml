@@ -705,7 +705,7 @@ pipeline:
                       identifier: Build
                       spec:
                         connectorRef: Plugins_Docker_Hub_Connector
-                        image: golang:1.26
+                        image: golang:1.23.0
                         shell: Sh
                         command: |-
                           # force go modules
@@ -720,7 +720,7 @@ pipeline:
                           # windows
                           GOOS=windows
 
-                          go build -o release/windows/amd64/buildx-acr.exe ./cmd/drone-buildx-acr
+                          go build -buildvcs=false -o release/windows/amd64/buildx-acr.exe ./cmd/drone-buildx-acr
                   - step:
                       type: Plugin
                       name: RF Build and Push on Tag
@@ -812,7 +812,7 @@ pipeline:
                           # windows
                           GOOS=windows
 
-                          go build -o release/windows/amd64/buildx-acr.exe ./cmd/drone-buildx-acr
+                          go build -buildvcs=false -o release/windows/amd64/buildx-acr.exe ./cmd/drone-buildx-acr
                   - step:
                       type: Plugin
                       name: RF Build and Push on Tag
