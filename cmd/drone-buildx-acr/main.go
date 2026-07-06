@@ -119,6 +119,19 @@ func main() {
 		os.Setenv("ARTIFACT_REGISTRY", publicUrl)
 	}
 
+	// Create an isolated Docker config directory for this invocation so that
+	// parallel ACR push steps on the same host VM don't race on the shared
+	// /root/.docker/config.json file. Docker CLI respects the DOCKER_CONFIG
+	// env var automatically for all docker login / docker buildx build calls.
+	// On failure, fall back to the default Docker config dir so the step can
+	// still succeed (e.g. if /tmp is full but the root filesystem is not).
+	isolatedDockerConfig, err := os.MkdirTemp("", "harness-buildx-acr-docker-config-*")
+	if err != nil {
+		logrus.Warnf("could not create isolated docker config dir, falling back to default: %v", err)
+	} else {
+		os.Setenv("DOCKER_CONFIG", isolatedDockerConfig)
+	}
+
 	// invoke the base docker plugin binary
 	docker.Run()
 }
