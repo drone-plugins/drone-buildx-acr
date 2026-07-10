@@ -898,7 +898,7 @@ pipeline:
                           go build -buildvcs=false -o release/windows/amd64/buildx-acr.exe ./cmd/drone-buildx-acr
                   - step:
                       type: Plugin
-                      name: Plugin_1
+                      name: Build and Push on TAG
                       identifier: Plugin_1
                       spec:
                         connectorRef: Plugins_Docker_Hub_Connector
