@@ -1138,7 +1138,7 @@ pipeline:
                       type: GCSUpload
                       spec:
                         sourcePath: /harness/release
-                        target: drone-buildx-acr/<+trigger.tag>/
+                        target: drone-buildx-acr/<+codebase.tag>/
                       when:
                         condition: <+codebase.build.type> == "tag"
         variables:
