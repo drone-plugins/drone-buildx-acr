@@ -1,6 +1,6 @@
 module github.com/drone-plugins/drone-buildx-acr
 
-go 1.26
+go 1.26.10
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.21.0
